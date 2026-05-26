@@ -1,0 +1,4 @@
+source_type,source_name,value,unit,status
+UTILITY,Plant Electricity Meter,980,kWh,PENDING
+UTILITY,Head Office Consumption,1200,kWh,PENDING
+UTILITY,Invalid Meter Reading,-200,kWh,FLAGGED

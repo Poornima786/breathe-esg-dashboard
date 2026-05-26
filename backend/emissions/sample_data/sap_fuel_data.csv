@@ -1,0 +1,4 @@
+source_type,source_name,value,unit,status
+SAP,Diesel Procurement,500,Litres,PENDING
+SAP,Petrol Procurement,300,Litres,PENDING
+SAP,Natural Gas Consumption,1200,kWh,PENDING

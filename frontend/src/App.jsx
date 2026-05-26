@@ -67,7 +67,7 @@ function App() {
       <table border="1" cellPadding="10">
         <thead>
           <tr>
-            <th>Source</th>
+            <th>Source Name</th>
             <th>Value</th>
             <th>Unit</th>
             <th>Status</th>
@@ -78,7 +78,7 @@ function App() {
         <tbody>
           {records.map((record) => (
             <tr key={record.id}>
-              <td>{record.source}</td>
+              <td>{record.source_name}</td>
               <td>{record.value}</td>
               <td>{record.unit}</td>
 
@@ -124,23 +124,23 @@ function App() {
       </h2>
 
       <BarChart
-        width={700}
-        height={300}
-        data={records}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
+  width={700}
+  height={300}
+  data={records}
+>
+  <CartesianGrid strokeDasharray="3 3" />
 
-        <XAxis dataKey="source" />
+  <XAxis dataKey="source_name" />
 
-        <YAxis />
+  <YAxis />
 
-        <Tooltip />
+  <Tooltip />
 
-        <Bar
-          dataKey="value"
-          fill="#00bfff"
-        />
-      </BarChart>
+  <Bar
+    dataKey="value"
+    fill="#00bfff"
+  />
+</BarChart>
     </div>
   );
 }

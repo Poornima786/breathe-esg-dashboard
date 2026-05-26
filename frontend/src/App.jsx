@@ -1,15 +1,54 @@
 import { useEffect, useState } from "react";
 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
+
 function App() {
   const [records, setRecords] = useState([]);
 
-  useEffect(() => {
+  const fetchRecords = () => {
     fetch("http://127.0.0.1:8000/api/records/")
       .then((response) => response.json())
       .then((data) => {
         setRecords(data);
       });
+  };
+
+  useEffect(() => {
+    fetchRecords();
   }, []);
+
+  const handleUpload = async (event) => {
+    const file = event.target.files[0];
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    await fetch("http://127.0.0.1:8000/api/upload/", {
+      method: "POST",
+      body: formData,
+    });
+
+    fetchRecords();
+  };
+
+  const updateStatus = async (id, status) => {
+    await fetch(`http://127.0.0.1:8000/api/records/${id}/update/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    fetchRecords();
+  };
 
   return (
     <div style={{ padding: "40px", fontFamily: "Arial" }}>
@@ -17,22 +56,9 @@ function App() {
 
       <hr />
 
-      <h2>Upload Data</h2>
+      <h2>Upload CSV</h2>
 
-      <div style={{ marginBottom: "20px" }}>
-        <p>SAP Upload</p>
-        <input type="file" />
-      </div>
-
-      <div style={{ marginBottom: "20px" }}>
-        <p>Utility Upload</p>
-        <input type="file" />
-      </div>
-
-      <div style={{ marginBottom: "20px" }}>
-        <p>Travel Upload</p>
-        <input type="file" />
-      </div>
+      <input type="file" onChange={handleUpload} />
 
       <hr />
 
@@ -45,6 +71,7 @@ function App() {
             <th>Value</th>
             <th>Unit</th>
             <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
 
@@ -54,11 +81,66 @@ function App() {
               <td>{record.source}</td>
               <td>{record.value}</td>
               <td>{record.unit}</td>
-              <td>{record.status}</td>
+
+              <td
+                style={{
+                  color:
+                    record.status === "APPROVED"
+                      ? "limegreen"
+                      : record.status === "FLAGGED"
+                      ? "red"
+                      : "gold",
+                  fontWeight: "bold",
+                }}
+              >
+                {record.status}
+              </td>
+
+              <td>
+                <button
+                  onClick={() =>
+                    updateStatus(record.id, "APPROVED")
+                  }
+                >
+                  Approve
+                </button>
+
+                <button
+                  onClick={() =>
+                    updateStatus(record.id, "FLAGGED")
+                  }
+                  style={{ marginLeft: "10px" }}
+                >
+                  Flag
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      <h2 style={{ marginTop: "50px" }}>
+        Emission Overview
+      </h2>
+
+      <BarChart
+        width={700}
+        height={300}
+        data={records}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+
+        <XAxis dataKey="source" />
+
+        <YAxis />
+
+        <Tooltip />
+
+        <Bar
+          dataKey="value"
+          fill="#00bfff"
+        />
+      </BarChart>
     </div>
   );
 }

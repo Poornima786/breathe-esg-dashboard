@@ -15,9 +15,26 @@ class EmissionRecord(models.Model):
         ('FLAGGED', 'FLAGGED'),
     ]
 
+    SCOPE_CHOICES = [
+        ('SCOPE_1', 'SCOPE_1'),
+        ('SCOPE_2', 'SCOPE_2'),
+        ('SCOPE_3', 'SCOPE_3'),
+    ]
+
+    organization = models.CharField(
+        max_length=100,
+        default="Demo Enterprise"
+    )
+
     source_type = models.CharField(
         max_length=20,
         choices=SOURCE_CHOICES
+    )
+
+    scope_category = models.CharField(
+        max_length=20,
+        choices=SCOPE_CHOICES,
+        default='SCOPE_1'
     )
 
     source_name = models.CharField(
@@ -48,4 +65,4 @@ class EmissionRecord(models.Model):
 
     def __str__(self):
 
-        return f"{self.source_type} - {self.source_name}"
+        return f"{self.organization} - {self.source_name}"

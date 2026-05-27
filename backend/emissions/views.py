@@ -23,6 +23,7 @@ def get_records(request):
 def update_status(request, pk):
 
     try:
+
         record = EmissionRecord.objects.get(id=pk)
 
         status = request.data.get('status')
@@ -31,11 +32,15 @@ def update_status(request, pk):
 
         record.save()
 
-        return Response({"message": "Status updated"})
+        return Response({
+            "message": "Status updated"
+        })
 
     except EmissionRecord.DoesNotExist:
 
-        return Response({"error": "Record not found"})
+        return Response({
+            "error": "Record not found"
+        })
 
 
 # UPLOAD CSV
@@ -45,17 +50,59 @@ def upload_csv(request):
     file = request.FILES.get('file')
 
     if not file:
-        return Response({"error": "No file uploaded"})
 
-    decoded_file = TextIOWrapper(file.file, encoding='utf-8')
+        return Response({
+            "error": "No file uploaded"
+        })
+
+    decoded_file = TextIOWrapper(
+        file.file,
+        encoding='utf-8'
+    )
 
     reader = csv.DictReader(decoded_file)
 
     for row in reader:
 
+        # AUTO SCOPE MAPPING
+        scope_category = "SCOPE_1"
+
+        if row['source_type'] == "UTILITY":
+
+            scope_category = "SCOPE_2"
+
+        elif row['source_type'] == "TRAVEL":
+
+            scope_category = "SCOPE_3"
+
+
+        # SUSPICIOUS VALUE DETECTION
+        status = row['status']
+
+        if float(row['value']) < 0:
+
+            status = "FLAGGED"
+
+
+        # DUPLICATE CHECK
+        existing_record = EmissionRecord.objects.filter(
+            source_type=row['source_type'],
+            source_name=row['source_name'],
+            value=float(row['value'])
+        ).first()
+
+        if existing_record:
+            continue
+
+
+        # CREATE RECORD
         EmissionRecord.objects.create(
 
+            organization="Demo Enterprise",
+
             source_type=row['source_type'],
+
+            scope_category=scope_category,
 
             source_name=row['source_name'],
 
@@ -63,9 +110,11 @@ def upload_csv(request):
 
             unit=row['unit'],
 
-            status=row['status'],
+            status=status,
 
             original_file=file.name
         )
 
-    return Response({"message": "CSV uploaded successfully"})
+    return Response({
+        "message": "CSV uploaded successfully"
+    })
